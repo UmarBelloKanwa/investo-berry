@@ -15,6 +15,11 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Autocomplete from '@mui/material/Autocomplete';
+
+
+import countries from "../../../store/countriesList";
+import useAuthRegister from '../../../hooks/auth/useAuthRegister';
 
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton';
@@ -26,6 +31,14 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 // ===========================|| JWT - REGISTER ||=========================== //
 
 export default function AuthRegister() {
+  const { registerData, handleSetRegisterData } = useAuthRegister();
+
+  const { fullName,
+    email,
+    country,
+    phoneNumber,
+    password,
+    confirmPassword } = registerData.data;
   const theme = useTheme();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -49,92 +62,136 @@ export default function AuthRegister() {
         </Grid>
       </Grid>
 
-      <Grid container spacing={{ xs: 0, sm: 2 }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="First Name"
-            margin="normal"
-            name="firstName"
-            type="text"
-            value="Jhones"
-            sx={{ ...theme.typography.customInput }}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="Last Name"
-            margin="normal"
-            name="lastName"
-            type="text"
-            value="Doe"
-            sx={{ ...theme.typography.customInput }}
-          />
-        </Grid>
-      </Grid>
-      <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
-        <InputLabel htmlFor="outlined-adornment-email-register">Email Address </InputLabel>
-        <OutlinedInput id="outlined-adornment-email-register" type="email" value="jones@doe.com" name="email" />
-      </FormControl>
+      <TextField
+        fullWidth
+        label="Full name"
+        name="fullName"
+        type="text"
+        value={fullName}
+        onChange={(e) => handleSetRegisterData("fullName", e.target.value)}
+        error={!!registerData.helperText.fullName}
+        helperText={registerData.helperText.fullName}
+        sx={{ ...theme.typography.customInput }}
+      />
 
-      <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
-        <InputLabel htmlFor="outlined-adornment-email-register">Phone Number </InputLabel>
-        <OutlinedInput id="outlined-adornment-email-register" type="tel" value="+23456789012" name="phone" />
-      </FormControl>
+      <TextField
+        fullWidth
+        label="Email address"
+        name="email"
+        type="email"
+        value={email}
+        onChange={(e) => handleSetRegisterData("email", e.target.value)}
+        error={!!registerData.helperText.email}
+        helperText={registerData.helperText.email}
+        sx={{ ...theme.typography.customInput }}
+      />
 
-      <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
-        <InputLabel htmlFor="outlined-adornment-email-register"> Country </InputLabel>
-        <OutlinedInput id="outlined-adornment-email-register" type="text" value="Nigeria" name="country" />
-      </FormControl>
-
-      <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
-        <InputLabel htmlFor="outlined-adornment-password-register">Password</InputLabel>
-        <OutlinedInput
-          id="outlined-adornment-password-register"
-          type={showPassword ? 'text' : 'password'}
-          value="Jhones@123"
-          name="password"
-          label="Password"
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-                size="large"
+      <FormControl fullWidth >
+        <Autocomplete
+          onChange={(e, v) => handleSetRegisterData("country", v)}
+          id="country-select-demo"
+          value={country}
+          options={countries}
+          sx={{ ...theme.typography.customInput }}
+          autoHighlight
+          getOptionLabel={(option) => option?.label || ""}
+          isOptionEqualToValue={(option, value) => option.code === value?.code}
+          renderOption={(props, option) => {
+            const { key, ...optionProps } = props;
+            return (
+              <Box
+                key={key}
+                component="li"
+                sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                {...optionProps}
               >
-                {showPassword ? <Visibility /> : <VisibilityOff />}
-              </IconButton>
-            </InputAdornment>
-          }
+                {option.label}
+              </Box>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder='Country'
+              slotProps={{
+                htmlInput: {
+                  ...params.inputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                },
+              }}
+            />
+          )}
         />
-      </FormControl>
+        {registerData.helperText.country && (
+          <Typography variant="caption" color="error">
+            {registerData.helperText.country}
+          </Typography>
+        )}
+      </FormControl >
 
-      <FormControl fullWidth sx={{ ...theme.typography.customInput }}>
-        <InputLabel htmlFor="outlined-adornment-password-register"> Confirm Password</InputLabel>
-        <OutlinedInput
-          id="outlined-adornment-password-register"
-          type={showPassword ? 'text' : 'password'}
-          value="Jhones@123"
-          name="password"
-          label="Confirm Password"
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-                size="large"
-              >
-                {showPassword ? <Visibility /> : <VisibilityOff />}
-              </IconButton>
-            </InputAdornment>
-          }
-        />
-      </FormControl>
+      <TextField
+        fullWidth
+        label="Phone Number"
+        name="phone"
+        type="tel"
+        value={phoneNumber}
+        onChange={(e) => handleSetRegisterData("phoneNumber", e.target.value)}
+        error={!!registerData.helperText.phoneNumber}
+        helperText={registerData.helperText.phoneNumber}
+        sx={{ ...theme.typography.customInput }}
+      />
+
+      <TextField
+        fullWidth
+        label="Password"
+        id="outlined-adornment-password-register"
+        type={showPassword ? 'text' : 'password'}
+        onChange={(e) => handleSetRegisterData("password", e.target.value)}
+        value={password}
+        name="password"
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+              edge="end"
+              size="large"
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        }
+        error={!!registerData.helperText.password}
+        helperText={registerData.helperText.password}
+        sx={{ ...theme.typography.customInput }}
+      />
+
+      <TextField
+        fullWidth
+        id="outlined-adornment-password-register"
+        type={showPassword ? 'text' : 'password'}
+        value={confirmPassword}
+        onChange={(e) => handleSetRegisterData("confirmPassword", e.target.value)}
+        name="password"
+        label="Confirm Password"
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+              edge="end"
+              size="large"
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        }
+        error={!!registerData.helperText.confirmPassword}
+        helperText={registerData.helperText.confirmPassword}
+        sx={{ ...theme.typography.customInput }}
+      />
 
       <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Grid>
